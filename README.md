@@ -1,3 +1,8 @@
+# add support for arm platform
+- add sse2neon
+____________________________
+
+
 # trackingTarget
 ##  c++测试fDsst和Opencv中跟踪算法API效果
 #### 软件与库环境：opencv3.4+opencv_contrib3.4
