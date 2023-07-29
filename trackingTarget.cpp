@@ -1,9 +1,10 @@
 #include<iostream>
 #include<opencv2/opencv.hpp>
-#include<opencv2/tracking/tracker.hpp>
+//#include<opencv2/tracking/tracker.hpp>
 #include<string>
 #include<fstream>
 #include<time.h>
+#include <chrono>
 #include "fdssttracker.hpp"
 
 using namespace std;
@@ -13,7 +14,7 @@ using namespace cv;
 Point previousPoint, currentPoint;
 Rect2d bbox;
 Point center;
-//¶¯Ì¬Êı×é´æ´¢×ø±êµã
+//åŠ¨æ€æ•°ç»„å­˜å‚¨åæ ‡ç‚¹
 vector<Point2d> points;
 
 void draw_rectangle(int event, int x, int y, int flags, void*);
@@ -24,32 +25,40 @@ int main(int argc,char *argv[])
 {
 	VideoCapture cap;
 	int count = 1;
-	//°´ÕÕÊÓÆµÊµ¼ÊÂ·¾¶¸ü¸Ä
-	//ÈôÊÇÍ¼Æ¬ĞòÁĞ£¬×ÔĞĞĞŞ¸ÄÆäÎÄ¼şÃû±éÀú¸ñÊ½
-	//ÀıÈç£ºÍ¼ÏñÂ·¾¶imgPath
-	//char name[10];
-	//sprintf_s(name, "%04d", count);
-	//std::string imgPath = "F:\\Code\\trackingAlgorithm\\fDSST_cpp-master\\src\\Car1\\img\\";
-	//std::string imgFinalPath = imgPath + std::string(name) + ".jpg";
+	//æŒ‰ç…§è§†é¢‘å®é™…è·¯å¾„æ›´æ”¹
+	//è‹¥æ˜¯å›¾ç‰‡åºåˆ—ï¼Œè‡ªè¡Œä¿®æ”¹å…¶æ–‡ä»¶åéå†æ ¼å¼
+	//ä¾‹å¦‚ï¼šå›¾åƒè·¯å¾„imgPath
+    // "img00001.jpg"
+	char name[10];
+    std::sprintf(name, "img%05d", count);
+//	std::string imgPath = "/media/cf/96A2CA30A2CA1521/downloads/Tracker_20230722/Tracker/fDSST/sequences/dog1/imgs/";
+	std::string imgPath = "/mnt/sd/imgs/";
+//    std::string imgPath = "/home/khadas/Desktop/imgs/";
+	std::string imgFinalPath = imgPath + std::string(name) + ".jpg";
+    printf("imgFinalPath:%s\n", imgFinalPath.c_str());
 
-	string filename = "F:\\Code\\trajectory_recognition\\VID1AN.mp4";	
-	cap.open(filename);
-	if (!cap.isOpened())
-	{
-		cout << "###############ÊÓÆµ´ò¿ªÊ§°Ü###############" << endl;
-		return -1;
-	}
-	cap.read(frame);
-	cvtColor(frame,dst, CV_BGR2GRAY);
-	if (!frame.empty())
-	{
-		namedWindow("output", 0);
-		imshow("output", dst);
-		setMouseCallback("output", draw_rectangle, 0);
-		waitKey();
-	}
+//	string filename = "/media/cf/96A2CA30A2CA1521/530/3.mp4";
+//	cap.open(filename);
+//	if (!cap.isOpened())
+//	{
+//		cout << "###############è§†é¢‘æ‰“å¼€å¤±è´¥###############" << endl;
+//		return -1;
+//	}
+//	cap.read(frame);
+    frame = cv::imread(imgFinalPath);
+	cvtColor(frame,dst, cv::COLOR_BGR2GRAY);
+//    cv::imshow("output", frame);
+//    cv::waitKey();
 
-	/*********************OpencvÄ¿±ê×·×ÙËã·¨Ä£°åº¯Êı***************************/
+//	if (!frame.empty())
+//	{
+//		namedWindow("output", 0);
+//		imshow("output", dst);
+//		setMouseCallback("output", draw_rectangle, 0);
+//		waitKey();
+//	}
+
+	/*********************Opencvç›®æ ‡è¿½è¸ªç®—æ³•æ¨¡æ¿å‡½æ•°***************************/
 	//Ptr<TrackerMIL> tracker=TrackerMIL::create();
 	//Ptr<TrackerTLD> tracker=TrackerTLD::create();
 	//Ptr<TrackerMedianFlow> tracker=TrackerMedianFlow::create();
@@ -59,7 +68,7 @@ int main(int argc,char *argv[])
 	//Ptr<TrackerGOTURN> tracker = TrackerGOTURN::create();
 	/***********************************************************************/
 
-	/************************FDSSTÄ¿±ê¸ú×ÙËã·¨*********************************/
+	/************************FDSSTç›®æ ‡è·Ÿè¸ªç®—æ³•*********************************/
 	/************************************************************************/
 
 	bool HOG = true;
@@ -75,16 +84,24 @@ int main(int argc,char *argv[])
 	double duration = 0;
 	for(;;)
 	{	
-		cap.read(frame);
-		if (!cap.read(frame))
-		{
-			break;
-		}
-		cvtColor(frame, dst, CV_BGR2GRAY);//fdsstÔ´³ÌĞòfhogÖ»ÄÜ´«Èë»Ò¶ÈÍ¼Æ¬£¬Òò´Ë¶ÔÍ¼Æ¬×öÒ»¸ö»Ò¶È×ª»¯
+//		cap.read(frame);
+//		if (!cap.read(frame))
+//		{
+//			break;
+//		}
+        if (count > 1350)
+            break;
+        std::sprintf(name, "img%05d", count);
+        imgFinalPath = imgPath + std::string(name) + ".jpg";
+        frame = cv::imread(imgFinalPath);
 
-		//¼ÆÊ±´òµã¿ªÊ¼
+
+		cvtColor(frame, dst, cv::COLOR_BGR2GRAY);//fdsstæºç¨‹åºfhogåªèƒ½ä¼ å…¥ç°åº¦å›¾ç‰‡ï¼Œå› æ­¤å¯¹å›¾ç‰‡åšä¸€ä¸ªç°åº¦è½¬åŒ–
+
+		//è®¡æ—¶æ‰“ç‚¹å¼€å§‹
 		auto t_start = clock();
-		//×Ö·ûÊı×é´æ´¢×ø±êµãÊä³öÃû³Æ
+        std::chrono::time_point<std::chrono::high_resolution_clock> p0 = std::chrono::high_resolution_clock::now();
+		//å­—ç¬¦æ•°ç»„å­˜å‚¨åæ ‡ç‚¹è¾“å‡ºåç§°
 		//char target[30];
 		if (frame.empty())
 		{
@@ -92,33 +109,38 @@ int main(int argc,char *argv[])
 		}
 		if (count==1)
 		{
-			//´«ÈëÊ×Ö¡Êó±ê¿òÑ¡³õÊ¼¸ú×Ù¿òbbox
+			//ä¼ å…¥é¦–å¸§é¼ æ ‡æ¡†é€‰åˆå§‹è·Ÿè¸ªæ¡†bbox
 		
-			/*opencv×Ô´øËã·¨*/
+			/*opencvè‡ªå¸¦ç®—æ³•*/
 			//tracker->init(frame, bbox);
-			/*¸Ä½øËã·¨*/
+			/*æ”¹è¿›ç®—æ³•*/
 			//FDSST
+//            bbox = {904, 611, 66, 50};
+            bbox = {139,112,51,36};
 			tracker.init(bbox, dst);
 		}
 		else {
-			/*opencv×Ô´øËã·¨*/
+			/*opencvè‡ªå¸¦ç®—æ³•*/
 			//tracker->update(frame, bbox);
-			/*¸Ä½øËã·¨*/
+			/*æ”¹è¿›ç®—æ³•*/
 			//FDSST
 			bbox = tracker.update(dst);
 			
 		}
-		//¼ÆÊ±º¯Êı¼ÆÊ±´òµã½áÊø
+		//è®¡æ—¶å‡½æ•°è®¡æ—¶æ‰“ç‚¹ç»“æŸ
 		auto t_end = clock();
+        std::chrono::time_point<std::chrono::high_resolution_clock> p1 = std::chrono::high_resolution_clock::now();
+        float cost_t = (float)std::chrono::duration_cast<std::chrono::microseconds>(p1-p0).count() / 1000.0f;
 		duration += (double)(t_end - t_start) / CLOCKS_PER_SEC;
-		//ÇóFPS:
+		//æ±‚FPS:
 		cout << "FPS: " << count / duration << "\n";
+		cout << "cost_t: " << cost_t << "ms" << "\n";
 		count++;
 		rectangle(frame, bbox, Scalar(255, 255, 0), 2, 1);
 		center.x = bbox.x + bbox.width / 2;
 		center.y = bbox.y + bbox.height / 2;
 		points.push_back(center);
-		//»æÖÆ¹ì¼£¸ú×Ù¿òÖĞĞÄµãÍ¼Ïß
+		//ç»˜åˆ¶è½¨è¿¹è·Ÿè¸ªæ¡†ä¸­å¿ƒç‚¹å›¾çº¿
 		for (int j = 1; j < points.size(); j++)
 		{
 			Point pre, last;
@@ -135,19 +157,19 @@ int main(int argc,char *argv[])
 			}
 		}
 		circle(frame, center, 4, Scalar(0, 255, 0), -1);
-		/*ÏÔÊ¾Êä³ö¼ì²âÖĞĞÄµãÎ»ÖÃ×ø±ê*/
-		//sprintf(target, "¼ì²â¿òÖĞĞÄÎ»ÖÃ(%d,%d)", center.x, center.y);
+		/*æ˜¾ç¤ºè¾“å‡ºæ£€æµ‹ä¸­å¿ƒç‚¹ä½ç½®åæ ‡*/
+		//sprintf(target, "æ£€æµ‹æ¡†ä¸­å¿ƒä½ç½®(%d,%d)", center.x, center.y);
 		//cout << target << endl;
-		/********************½«¼ì²â¿òÖĞĞÄĞ´ÈëtxtÎÄ¼şÖĞ*************************/
+		/********************å°†æ£€æµ‹æ¡†ä¸­å¿ƒå†™å…¥txtæ–‡ä»¶ä¸­*************************/
 		/*
 		infile << center.x << "\t" << center.y << endl;
 		*/
 
-		namedWindow("tracking", 0);
-		imshow("tracking", frame);
-		int delayms = 1;
-		if (waitKey(delayms) == 27)
-			break;
+//		namedWindow("tracking", 0);
+//		imshow("tracking", frame);
+//		int delayms = 1;
+//		if (waitKey(delayms) == 27)
+//			break;
 		
 
 	}

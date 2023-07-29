@@ -42,9 +42,9 @@ the use of this software, even if advised of the possibility of such damage.
 #endif
 
 //NOTE: FFTW support is still shaky, disabled for now.
-/*#ifdef USE_FFTW
+//#ifdef USE_FFTW
 #include <fftw3.h>
-#endif*/
+//#endif
 
 namespace FFTTools
 {

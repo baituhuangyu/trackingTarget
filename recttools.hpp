@@ -157,7 +157,7 @@ inline cv::Mat extractImage(const cv::Mat &in, float cx, float cy, float patch_w
 
 inline cv::Mat getGrayImage(cv::Mat img)
 {
-    cv::cvtColor(img, img, CV_BGR2GRAY);
+    cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
     img.convertTo(img, CV_32F, 1 / 255.f);
     return img;
 }
